@@ -22,7 +22,7 @@ from ecdsa import SigningKey, VerifyingKey, NIST256p
 from TemporaryExposureKey.TemporaryExposureKey_pb2 import TemporaryExposureKeyExport, TEKSignatureList, SignatureInfo, TemporaryExposureKey, TEKSignature
 
 
-__version__ = '1.20200903'
+__version__ = '2.20200904'
 
 __tek_key_name = "export.bin"
 __tek_sig_name = "export.sig"
