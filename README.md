@@ -26,7 +26,13 @@ Mock service of VA/EN server for Japanese Exposure Notification Service a.k.a. "
 . example.env
 ```
 
-3. Start as Flask development server
+3. Install python packages required.
+
+```
+pip install -r requirements.txt
+```
+
+4. Start as Flask development server
 
 ```
 flask run
