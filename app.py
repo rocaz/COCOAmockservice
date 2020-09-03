@@ -4,6 +4,7 @@ import json
 import re
 import io
 import base64
+import hashlib
 from datetime import datetime, timedelta
 import zipfile
 
@@ -25,6 +26,7 @@ __version__ = '1.20200903'
 
 __tek_key_name = "export.bin"
 __tek_sig_name = "export.sig"
+__special_header_str = "EK Export v1    "
 
 # Exceptions
 class Error(Exception):
@@ -125,35 +127,36 @@ def get_zip(id):
     if tek is None:
         return make_response("Not Found", 404)
     
-    tek_bin = TemporaryExposureKeyExport()
-    tek_bin.start_timestamp = int(datetime.strptime(datetime.fromtimestamp(int(tek.created.timestamp())).astimezone().strftime("%Y-%m-%d 00:00:00%z"), "%Y-%m-%d %H:%M:%S%z").timestamp())
-    tek_bin.end_timestamp = int(datetime.strptime((datetime.fromtimestamp(int(tek.created.timestamp())) + timedelta(days=1)).astimezone().strftime("%Y-%m-%d 00:00:00%z"), "%Y-%m-%d %H:%M:%S%z").timestamp())
-    tek_bin.region = tek.region
-    tek_bin.batch_num = 1
-    tek_bin.batch_size = 1
+    tek_tmp = TemporaryExposureKeyExport()
+    tek_tmp.start_timestamp = int(datetime.strptime(datetime.fromtimestamp(int(tek.created.timestamp())).astimezone().strftime("%Y-%m-%d 00:00:00%z"), "%Y-%m-%d %H:%M:%S%z").timestamp())
+    tek_tmp.end_timestamp = int(datetime.strptime((datetime.fromtimestamp(int(tek.created.timestamp())) + timedelta(days=1)).astimezone().strftime("%Y-%m-%d 00:00:00%z"), "%Y-%m-%d %H:%M:%S%z").timestamp())
+    tek_tmp.region = tek.region
+    tek_tmp.batch_num = 1
+    tek_tmp.batch_size = 1
     signature_infos = SignatureInfo()
     signature_infos.verification_key_version = "v1"
     signature_infos.verification_key_id = "440"
     signature_infos.signature_algorithm = "1.2.840.10045.4.3.2"
-    tek_bin.signature_infos.append(signature_infos)
+    tek_tmp.signature_infos.append(signature_infos)
     temporary_exposure_key = TemporaryExposureKey()
     temporary_exposure_key.key_data = base64.b64decode(tek.key_data)
     temporary_exposure_key.transmission_risk_level = tek.transmission_risk
     temporary_exposure_key.rolling_start_interval_number = tek.rolling_start_number
     temporary_exposure_key.rolling_period = tek.rolling_period
-    tek_bin.keys.append(temporary_exposure_key)
+    tek_tmp.keys.append(temporary_exposure_key)
+    tek_bin = __special_header_str.encode('utf-8') + tek_tmp.SerializeToString()
     
     sig_bin = TEKSignatureList()
     tek_signature = TEKSignature()
     tek_signature.signature_info.verification_key_version = "v1"
     tek_signature.signature_info.verification_key_id = "440"
     tek_signature.signature_info.signature_algorithm = "1.2.840.10045.4.3.2"
-    tek_signature.signature = signature_key.sign(tek_bin.SerializeToString())
+    tek_signature.signature = signature_key.sign(hashlib.sha256(tek_bin).digest())
     sig_bin.signatures.append(tek_signature)
 
     zipdata = io.BytesIO()
     with zipfile.ZipFile(zipdata, 'w', compression=zipfile.ZIP_DEFLATED) as z:
-        z.writestr(__tek_key_name, tek_bin.SerializeToString())
+        z.writestr(__tek_key_name, tek_bin)
         z.writestr(__tek_sig_name, sig_bin.SerializeToString())
     zipdata.seek(0)
 
