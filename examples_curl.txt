@@ -1,0 +1,8 @@
+1. POST positive's TEKs
+curl -X POST -v http://127.0.0.1:31310/diagnosis -H 'Content-Type:application/json' -d '{"userUuid":"dummy uuid", "keys":[{"keyData":"BVHX3Xp9tYtwFak2QtkoHw==","rollingStartNumber":2664652,"rollingPeriod":2,"transmissionRisk":3},{"keyData":"CGRNx3RfpSDqJBVN20JiBg==","rollingStartNumber":2664508,"rollingPeriod":2,"transmissionRisk":5}],"regions":["440"],"platform":"android","deviceVerificationPayload":"dummy DeviceVerificationPayload", "appPackageName":"net.moonmile.cocoa","verificationPayload":"12345678","padding":"4mMZg2sUvv9/YcmntCX5Z"}'
+
+2. GET list.json
+curl -X GET -v http://127.0.0.1:31310/list.json
+
+3. GET TEK zip
+curl -X GET -v http://127.0.0.1:31310/3.zip -O -J
