@@ -1,6 +1,6 @@
 # COCOAmockservice
 
-Mock service of VA/EN server for Japanese Exposure Notification Service a.k.a. "COCOA".
+Mock service of Verification and EN Key server for Japanese Exposure Notification Service a.k.a. "COCOA".
 
 [![Python: 3.7+](https://img.shields.io/badge/Python-3.7+-4584b6.svg?style=popout&logo=python)](https://www.python.org/)
 
@@ -45,11 +45,11 @@ python app.py
 ## API
 
 - POST /diagnosis
-  - Register positive's TEKs through Validation server.
+  - Register positive's TEKs through Verification server.
 - GET /list.json
-  - Get TEK ZIp list json from EN server.
+  - Get TEK ZIp list json from EN Key server.
 - GET /_n_.zip
-  - GET TEK ZIP from EN server.
+  - GET TEK ZIP from EN Key server.
 
 Plase see **examples_curl.txt**
 
